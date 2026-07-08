@@ -1,5 +1,5 @@
 ﻿import tkinter as tk
-from tkinter import ttk
+from tkinter import ttk, messagebox
 from . import settings, utils, processing
 
 
@@ -9,9 +9,11 @@ class ImageApp:
         self.root = tk.Tk()
         self.root.title(settings.WINDOW_TITLE)
         self.root.geometry(settings.WINDOW_SIZE)
+        self.root.resizable(False, False)
+        self.root.attributes('-topmost', True)
 
-        self.image = None
-        self.photo = None
+        self.cv_array = None
+        self.default_image = None
 
         self.create_widgets()
 
@@ -84,7 +86,7 @@ class ImageApp:
             button_frame,
             text="Повысить яркость",
             command=lambda: self.set_image(
-                source=processing.task2(self.cv_array)
+                source=processing.task2(self.cv_array, self.root)
             ),
         ).pack(side=tk.LEFT, padx=5)
 
@@ -93,8 +95,20 @@ class ImageApp:
             button_frame,
             text="Круг",
             command=lambda: self.set_image(
-                source=processing.task3(self.cv_array)
+                source=processing.task3(self.cv_array, self.root)
             ),
+        ).pack(side=tk.LEFT, padx=5)
+
+        ttk.Separator(
+            button_frame,
+            orient="vertical",
+        ).pack(side=tk.LEFT, fill=tk.Y, padx=10)
+
+        # Кнопка для возвращения исходного изображения
+        ttk.Button(
+            button_frame,
+            text="Вернуть исходное",
+            command=lambda: self.set_image(source=None, default=True),
         ).pack(side=tk.LEFT, padx=5)
 
         # Область с изображением
@@ -119,12 +133,36 @@ class ImageApp:
             anchor="w",
         ).pack(side=tk.BOTTOM, fill=tk.X)
 
-    def set_image(self, source):
-        if source is not None:
+    def set_image(self, source, default=False):
+        if source:
             self.tk_image = source['tk_img']
             self.cv_array = source['cv_array']
+
+            if not self.default_image:
+                self.default_image = [self.tk_image, self.cv_array]
+
             self.image_label.configure(image=self.tk_image, text="")
             self.status.set(source['tk_st_msg'])
+        else:
+            if default and self.default_image:
+                self.cv_array = self.default_image[1]
+                self.image_label.configure(
+                    image=self.default_image[0], text=""
+                )
+                self.status.set('Изображение восстановлено.')
+            else:
+                if self.default_image:
+                    messagebox.showwarning(
+                        'Внимание',
+                        'Изображение не изменено.',
+                        parent=self.root,
+                    )
+                else:
+                    messagebox.showwarning(
+                        'Внимание',
+                        'Изображение не загружено.',
+                        parent=self.root,
+                    )
 
     def run(self):
         self.root.mainloop()

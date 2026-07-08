@@ -1,5 +1,4 @@
-﻿from fileinput import filename
-import cv2
+﻿import cv2
 from PIL import ImageTk, Image
 from tkinter import filedialog, messagebox
 from . import settings
@@ -57,8 +56,10 @@ def capture_image():
     cap = cv2.VideoCapture(0)
 
     if not cap.isOpened():
-        messagebox.showerror('Ошибка, не удалось подключиться к веб-камере.')
-        raise Exception("Не удалось подключиться к веб-камере.")
+        messagebox.showerror(
+            message='Ошибка, не удалось подключиться к веб-камере.'
+        )
+        return None
 
     while True:
 
@@ -72,7 +73,7 @@ def capture_image():
         key = cv2.waitKey(1)
 
         if key == 13:
-            
+
             image_tk = imagetk_from_bgr(bgr)
 
             cap.release()
@@ -81,7 +82,7 @@ def capture_image():
             data_dict = {
                 'tk_img': image_tk,
                 'cv_array': bgr,
-                'tk_st_msg': f'Открыто изображение с веб-камеры.',
+                'tk_st_msg': 'Открыто изображение с веб-камеры.',
             }
 
             return data_dict

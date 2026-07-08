@@ -2,7 +2,7 @@
 
 # Окно
 WINDOW_TITLE = "Image Processing App"
-WINDOW_SIZE = "1100x700"
+WINDOW_SIZE = "1045x600"
 
 # Импорт изображения
 SUPPORTED_FORMATS = (
