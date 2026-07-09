@@ -27,13 +27,17 @@ class ImageApp:
         ttk.Button(
             button_frame,
             text="Загрузить изображение",
-            command=lambda: self.set_image(source=utils.load_image()),
+            command=lambda: self.set_image(
+                source=utils.load_image(), new=True
+            ),
         ).pack(side=tk.LEFT, padx=5)
 
         ttk.Button(
             button_frame,
             text="Сделать фото",
-            command=lambda: self.set_image(source=utils.capture_image()),
+            command=lambda: self.set_image(
+                source=utils.capture_image(), new=True
+            ),
         ).pack(side=tk.LEFT, padx=5)
 
         ttk.Separator(
@@ -133,12 +137,12 @@ class ImageApp:
             anchor="w",
         ).pack(side=tk.BOTTOM, fill=tk.X)
 
-    def set_image(self, source, default=False):
+    def set_image(self, source, default=False, new=False):
         if source:
             self.tk_image = source['tk_img']
             self.cv_array = source['cv_array']
 
-            if not self.default_image:
+            if new:
                 self.default_image = [self.tk_image, self.cv_array]
 
             self.image_label.configure(image=self.tk_image, text="")
