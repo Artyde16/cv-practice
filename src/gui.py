@@ -1,16 +1,20 @@
 ﻿import tkinter as tk
-from tkinter import ttk, messagebox
+import customtkinter as ctk
+from tkinter import messagebox
 from . import settings, utils, processing
 
 
 class ImageApp:
 
     def __init__(self):
-        self.root = tk.Tk()
+        ctk.set_appearance_mode("System")
+        ctk.set_default_color_theme("blue")
+
+        self.root = ctk.CTk()
         self.root.title(settings.WINDOW_TITLE)
         self.root.geometry(settings.WINDOW_SIZE)
         self.root.resizable(False, False)
-        self.root.attributes('-topmost', True)
+        self.root.attributes('-topmost', False)
 
         self.cv_array = None
         self.default_image = None
@@ -18,120 +22,110 @@ class ImageApp:
         self.create_widgets()
 
     def create_widgets(self):
-
         # Верхняя панель (кнопки)
 
-        button_frame = ttk.Frame(self.root, padding=10)
-        button_frame.pack(side=tk.TOP, fill=tk.X)
+        button_frame = ctk.CTkFrame(self.root, corner_radius=8)
 
-        ttk.Button(
-            button_frame,
-            text="Загрузить изображение",
-            command=lambda: self.set_image(source=utils.load_image()),
-        ).pack(side=tk.LEFT, padx=5)
+        button_frame.pack(side=tk.TOP, padx=10, pady=10)
 
-        ttk.Button(
-            button_frame,
-            text="Сделать фото",
-            command=lambda: self.set_image(source=utils.capture_image()),
-        ).pack(side=tk.LEFT, padx=5)
+        def add_button(text, command, width=110):
+            ctk.CTkButton(
+                button_frame,
+                text=text,
+                command=command,
+                width=width,
+                height=28,
+                corner_radius=6,
+            ).pack(side=tk.LEFT, padx=3)
 
-        ttk.Separator(
-            button_frame,
-            orient="vertical",
-        ).pack(side=tk.LEFT, fill=tk.Y, padx=10)
+        def add_separator():
+            ctk.CTkFrame(
+                button_frame,
+                width=2,
+                height=25,
+                fg_color="gray50",
+                corner_radius=0,
+            ).pack(side=tk.LEFT, padx=8)
 
-        ttk.Button(
-            button_frame,
-            text="Красный канал",
-            command=lambda: self.set_image(
-                source=processing.red(self.cv_array)
-            ),
-        ).pack(side=tk.LEFT, padx=5)
+        add_button(
+            "Загрузить изображение",
+            lambda: self.set_image(source=utils.load_image()),
+            width=150,
+        )
 
-        ttk.Button(
-            button_frame,
-            text="Зеленый канал",
-            command=lambda: self.set_image(
-                source=processing.green(self.cv_array)
-            ),
-        ).pack(side=tk.LEFT, padx=5)
+        add_button(
+            "Сделать фото",
+            lambda: self.set_image(source=utils.capture_image()),
+            width=110,
+        )
 
-        ttk.Button(
-            button_frame,
-            text="Синий канал",
-            command=lambda: self.set_image(
-                source=processing.blue(self.cv_array)
-            ),
-        ).pack(side=tk.LEFT, padx=5)
+        add_separator()
 
-        ttk.Separator(
-            button_frame,
-            orient="vertical",
-        ).pack(side=tk.LEFT, fill=tk.Y, padx=10)
+        add_button(
+            "Красный канал",
+            lambda: self.set_image(source=processing.red(self.cv_array)),
+        )
 
-        # Кнопки для вариативного задания
+        add_button(
+            "Зеленый канал",
+            lambda: self.set_image(source=processing.green(self.cv_array)),
+        )
 
-        # 3
-        ttk.Button(
-            button_frame,
-            text="Негатив",
-            command=lambda: self.set_image(
-                source=processing.task1(self.cv_array)
-            ),
-        ).pack(side=tk.LEFT, padx=5)
+        add_button(
+            "Синий канал",
+            lambda: self.set_image(source=processing.blue(self.cv_array)),
+        )
 
-        # 7
-        ttk.Button(
-            button_frame,
-            text="Повысить яркость",
-            command=lambda: self.set_image(
+        add_separator()
+
+        add_button(
+            "Негатив",
+            lambda: self.set_image(source=processing.task1(self.cv_array)),
+            width=90,
+        )
+
+        add_button(
+            "Повысить яркость",
+            lambda: self.set_image(
                 source=processing.task2(self.cv_array, self.root)
             ),
-        ).pack(side=tk.LEFT, padx=5)
+            width=130,
+        )
 
-        # 13
-        ttk.Button(
-            button_frame,
-            text="Круг",
-            command=lambda: self.set_image(
+        add_button(
+            "Круг",
+            lambda: self.set_image(
                 source=processing.task3(self.cv_array, self.root)
             ),
-        ).pack(side=tk.LEFT, padx=5)
+            width=80,
+        )
 
-        ttk.Separator(
-            button_frame,
-            orient="vertical",
-        ).pack(side=tk.LEFT, fill=tk.Y, padx=10)
+        add_separator()
 
-        # Кнопка для возвращения исходного изображения
-        ttk.Button(
-            button_frame,
-            text="Вернуть исходное",
-            command=lambda: self.set_image(source=None, default=True),
-        ).pack(side=tk.LEFT, padx=5)
+        add_button(
+            "Вернуть исходное",
+            lambda: self.set_image(source=None, default=True),
+            width=130,
+        )
 
         # Область с изображением
 
-        self.image_label = ttk.Label(
+        self.image_CTkLabel = ctk.CTkLabel(
             self.root,
             text="Изображение не загружено",
-            anchor="center",
         )
 
-        self.image_label.pack(expand=True, fill=tk.BOTH, padx=10, pady=10)
+        self.image_CTkLabel.pack(expand=True, fill=tk.BOTH, padx=10, pady=5)
 
         # Строка состояния
 
-        self.status = tk.StringVar()
-        self.status.set("Готов к работе")
+        self.status = tk.StringVar(value="Готов к работе")
 
-        ttk.Label(
+        ctk.CTkLabel(
             self.root,
             textvariable=self.status,
-            relief=tk.SUNKEN,
             anchor="w",
-        ).pack(side=tk.BOTTOM, fill=tk.X)
+        ).pack(side=tk.BOTTOM, fill=tk.X, padx=10, pady=5)
 
     def set_image(self, source, default=False):
         if source:
@@ -141,12 +135,12 @@ class ImageApp:
             if not self.default_image:
                 self.default_image = [self.tk_image, self.cv_array]
 
-            self.image_label.configure(image=self.tk_image, text="")
+            self.image_CTkLabel.configure(image=self.tk_image, text="")
             self.status.set(source['tk_st_msg'])
         else:
             if default and self.default_image:
                 self.cv_array = self.default_image[1]
-                self.image_label.configure(
+                self.image_CTkLabel.configure(
                     image=self.default_image[0], text=""
                 )
                 self.status.set('Изображение восстановлено.')
