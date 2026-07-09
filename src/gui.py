@@ -10,7 +10,7 @@ class ImageApp:
         self.root.title(settings.WINDOW_TITLE)
         self.root.geometry(settings.WINDOW_SIZE)
         self.root.resizable(False, False)
-        self.root.attributes('-topmost', True)
+        self.root.attributes('-topmost', False)
 
         self.cv_array = None
         self.default_image = None
